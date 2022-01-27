@@ -1,43 +1,32 @@
 function calc(operator, a, b) {
-   let result;
-
+   
    if (typeof a !== 'number' || typeof b !== 'number') {
       return 'Error';
    }
 
-   switch (operator) {
-      case 'sum':
-         result = a + b;
-         break;
-      case 'multi':
-         result = a * b;
-         break;
-      case 'subtr':
-         result = a - b;
-         break;
-      case 'divide':
-         result = b !== 0 ? a / b : 'Division by zero';
-         break;
-      case 'pow':
-         result = a ** b;
-         break;
-      case 'rem':
-         result = a % b;
-         break;
-      default:      
-         return 'Unknown operator';
-   }
-
-   if (result !== result) {
+   const operations = {
+      sum: a + b,
+      mult: a * b,
+      sub: a - b,
+      div: b === 0 ? 'Divided by zero' : a / b,
+      pow: a ** b,
+      rem: a % b,
+   };
+   
+   if (operations[operator] !== operations[operator]) {
       return 'Result is not a number';
    }
-
-   return result;
+   
+   if (operator in operations) {
+      return operations[operator];
+   } else {
+      return 'Unknown operator';
+   }
 }
 
+
 console.log(calc('pow', NaN, 5));
-console.log(calc('divide', 2, 0));
-console.log(calc('rem', 2, 0));
-console.log(calc('subtr', 1, '3'));
-console.log(calc(2, 1, 2));
+console.log(calc('div', 5, 0));
+console.log(calc('rem', 5, '6'));
+console.log(calc('', 5, 3));
 console.log(calc());

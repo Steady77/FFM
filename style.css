@@ -2,6 +2,8 @@
 *::after,
 *::before {
     box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
 body {
@@ -20,9 +22,8 @@ body {
 
 .calc {
     width: 364px;
-    min-height: 582px;
     background-color: #17171c;
-    padding: 15px 20px 30px;
+    padding: 15px 20px 33px;
 }
 
 .calc__display {
@@ -31,6 +32,8 @@ body {
     line-height: 96px;
     margin-bottom: 16px;
     text-align: right;
+    height: 96px;
+    overflow-y: hidden;
 }
 
 .calc__buttons {

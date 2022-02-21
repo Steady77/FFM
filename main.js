@@ -1,24 +1,14 @@
-const numberButtons = document.querySelectorAll('.buttons__num'),
-    operatorButtons = document.querySelectorAll('.operator');
+import { UI_ELEMS } from './view.js';
 
-const display = document.querySelector('.calc__display-result'),
-    clearButton = document.querySelector('.buttons__clear'),
-    backspaceButton = document.querySelector('.buttons__backspace'),
-    divideButton = document.querySelector('.buttons__divide'),
-    multiplyButton = document.querySelector('.buttons__multiply'),
-    minusButton = document.querySelector('.buttons__minus'),
-    plusButton = document.querySelector('.buttons__plus'),
-    equalButton = document.querySelector('.buttons__equal');
-
-let firstNum = '',
-    secondNum = '',
+let firstOperand = '',
+    secondOperand = '',
     mathSign = '',
     isCalculated = false;
 
 function clearDisplay() {
-    display.textContent = '';
-    firstNum = '';
-    secondNum = '';
+    UI_ELEMS.DISPLAY.textContent = '';
+    firstOperand = '';
+    secondOperand = '';
     mathSign = '';
 }
 
@@ -33,112 +23,123 @@ function calc(operator, a, b) {
     return operations[operator];
 }
 
-function stringLimite() {
-    if (display.textContent.length >= 6) {
-        display.style.fontSize = '68px';
+function fontSizeLimite() {
+    const fontSizes = {
+        6: '68px',
+        8: '48px',
+        11: '28px',
+    };
 
-        if (display.textContent.length >= 8) {
-            display.style.fontSize = '48px';
+    if (!fontSizes[UI_ELEMS.DISPLAY.textContent.length]) {
+        return;
+    }
 
-            if (display.textContent.length >= 11) {
-                display.style.fontSize = '28px';
-            }
-        }
-    } else {
-        display.style.fontSize = '96px';
+    UI_ELEMS.DISPLAY.style.fontSize = fontSizes[UI_ELEMS.DISPLAY.textContent.length];
+}
+
+function formatZeroDisplay() {
+    if (firstOperand[0] === '0' && firstOperand.length > 1) {
+        UI_ELEMS.DISPLAY.textContent = UI_ELEMS.DISPLAY.textContent.slice(1);
+        firstOperand = firstOperand.slice(1);
+    }
+
+    if (secondOperand[0] === '0' && secondOperand.length >= 2) {
+        secondOperand = secondOperand.slice(1);
+        UI_ELEMS.DISPLAY.textContent =
+            UI_ELEMS.DISPLAY.textContent.slice(0, UI_ELEMS.DISPLAY.textContent.length - 2) + secondOperand;
     }
 }
 
-numberButtons.forEach(button => {
+function getLastChar() {
+    return UI_ELEMS.DISPLAY.textContent[UI_ELEMS.DISPLAY.textContent.length - 1];
+}
+
+UI_ELEMS.NUMBERS.forEach(button => {
     button.addEventListener('click', () => {
-        if (isCalculated && firstNum && !mathSign) {
+        if (isCalculated && firstOperand && !mathSign) {
             clearDisplay();
         }
 
-        display.textContent += button.textContent;
+        UI_ELEMS.DISPLAY.textContent += button.textContent;
 
-        if (secondNum === '' && mathSign === '') {
-            firstNum += button.textContent;
+        if (secondOperand === '' && mathSign === '') {
+            firstOperand += button.textContent;
         }
 
-        if (mathSign && firstNum) {
-            secondNum += button.textContent;
+        if (mathSign && firstOperand) {
+            secondOperand += button.textContent;
         }
 
-        if (firstNum[0] === '0' && firstNum.length > 1) {
-            display.textContent = display.textContent.slice(1);
-            firstNum = firstNum.slice(1);
-        }
-
-        if (secondNum[0] === '0' && secondNum.length >= 2) {
-            secondNum = secondNum.slice(1);
-            display.textContent = display.textContent.slice(0, display.textContent.length - 2) + secondNum;
-        }
+        formatZeroDisplay();
+        fontSizeLimite();
 
         isCalculated = false;
-        stringLimite();
     });
 });
 
-operatorButtons.forEach(operator => {
+UI_ELEMS.OPERATORS.forEach(operator => {
     operator.addEventListener('click', () => {
-        if ('÷×–+'.includes(display.textContent[display.textContent.length - 1])) return;
+        if ('÷×–+'.includes(getLastChar())) return;
 
-        if (display.textContent !== '') {
-            display.textContent += operator.textContent;
+        if (UI_ELEMS.DISPLAY.textContent !== '') {
+            UI_ELEMS.DISPLAY.textContent += operator.textContent;
             mathSign = operator.textContent;
         }
 
-        if (mathSign && firstNum && secondNum) {
-            let result = calc(mathSign, +firstNum, +secondNum);
+        if (mathSign && firstOperand && secondOperand) {
+            let result = calc(mathSign, +firstOperand, +secondOperand);
 
             if (!isFinite(result)) return;
 
-            display.textContent = result + operator.textContent;
-            firstNum = String(result);
-            secondNum = '';
+            UI_ELEMS.DISPLAY.textContent = result + operator.textContent;
+            firstOperand = String(result);
+            secondOperand = '';
             mathSign = operator.textContent;
         }
 
-        stringLimite();
+        fontSizeLimite();
     });
 });
 
-clearButton.addEventListener('click', () => {
+UI_ELEMS.CLEAR_BUTTON.addEventListener('click', () => {
     clearDisplay();
-    stringLimite();
+    fontSizeLimite();
 });
 
-backspaceButton.addEventListener('click', () => {
-    if (display.textContent.length <= 1) {
+UI_ELEMS.BACKSPACE_BUTTON.addEventListener('click', () => {
+    if (UI_ELEMS.DISPLAY.textContent.length <= 1) {
         clearDisplay();
     }
 
-    if (firstNum && mathSign) {
-        secondNum = secondNum.slice(0, secondNum.length - 1);
+    if (firstOperand && mathSign) {
+        secondOperand = secondOperand.slice(0, secondOperand.length - 1);
     }
-    if (!secondNum && !mathSign) {
-        firstNum = firstNum.slice(0, firstNum.length - 1);
+
+    if (!secondOperand && !mathSign) {
+        firstOperand = firstOperand.slice(0, firstOperand.length - 1);
     }
-    if (!secondNum && '÷×–+'.includes(display.textContent[display.textContent.length - 1])) {
+
+    if (!secondOperand && '÷×–+'.includes(getLastChar())) {
         mathSign = '';
     }
 
-    display.textContent = display.textContent.slice(0, display.textContent.length - 1);
-    stringLimite();
+    UI_ELEMS.DISPLAY.textContent = UI_ELEMS.DISPLAY.textContent.slice(0, UI_ELEMS.DISPLAY.textContent.length - 1);
+    fontSizeLimite();
 });
 
-equalButton.addEventListener('click', () => {
-    if (!mathSign || !firstNum || !secondNum) return;
+UI_ELEMS.EQUAL_BUTTON.addEventListener('click', () => {
+    if (!mathSign || !firstOperand || !secondOperand) return;
 
-    let result = calc(mathSign, +firstNum, +secondNum);
+    let result = calc(mathSign, +firstOperand, +secondOperand);
 
     if (!isFinite(result)) return;
 
-    display.textContent = result;
-    firstNum = String(result);
-    secondNum = '';
+    UI_ELEMS.DISPLAY.textContent = result;
+    firstOperand = String(result);
+    secondOperand = '';
     mathSign = '';
-    stringLimite();
+
+    fontSizeLimite();
+
     isCalculated = true;
 });
